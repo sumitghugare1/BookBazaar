@@ -1,0 +1,614 @@
+{
+  "info": {
+    "name": "BookBazaar API",
+    "description": "A complete API for an online bookstore with authentication, books, reviews, orders, and payments",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Authentication",
+      "description": "User registration, login, and API key management",
+      "item": [
+        {
+          "name": "Register",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n\t\"name\": \"Test User\",\n\t\"email\": \"test@example.com\",\n\t\"password\": \"password123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/register",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "register"]
+            },
+            "description": "Register a new user"
+          }
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n\t\"email\": \"test@example.com\",\n\t\"password\": \"password123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "login"]
+            },
+            "description": "Login and get JWT token"
+          }
+        },
+        {
+          "name": "Generate API Key",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/auth/api-key",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "api-key"]
+            },
+            "description": "Generate a new API key for the authenticated user"
+          }
+        },
+        {
+          "name": "Get User Profile",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/auth/me",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "me"]
+            },
+            "description": "Get the profile of the authenticated user"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Books",
+      "description": "Book management operations",
+      "item": [
+        {
+          "name": "Get All Books",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/books?title=&author=&genre=&minPrice=&maxPrice=&page=1&limit=10&sortBy=title&sortOrder=ASC",
+              "host": ["{{base_url}}"],
+              "path": ["books"],
+              "query": [
+                {
+                  "key": "title",
+                  "value": ""
+                },
+                {
+                  "key": "author",
+                  "value": ""
+                },
+                {
+                  "key": "genre",
+                  "value": ""
+                },
+                {
+                  "key": "minPrice",
+                  "value": ""
+                },
+                {
+                  "key": "maxPrice",
+                  "value": ""
+                },
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "sortBy",
+                  "value": "title"
+                },
+                {
+                  "key": "sortOrder",
+                  "value": "ASC"
+                }
+              ]
+            },
+            "description": "Get a list of books with optional filters and pagination"
+          }
+        },
+        {
+          "name": "Get Book by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/books/{{book_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["books", "{{book_id}}"]
+            },
+            "description": "Get detailed information about a specific book"
+          }
+        },
+        {
+          "name": "Add New Book (Admin)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n\t\"title\": \"The Great Gatsby\",\n\t\"author\": \"F. Scott Fitzgerald\",\n\t\"description\": \"A classic novel about the American Dream.\",\n\t\"isbn\": \"9780743273565\",\n\t\"price\": 12.99,\n\t\"genre\": \"Fiction\",\n\t\"publisher\": \"Scribner\",\n\t\"publishedDate\": \"2004-09-30\",\n\t\"stockQuantity\": 50,\n\t\"imageUrl\": \"https://example.com/gatsby.jpg\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/books",
+              "host": ["{{base_url}}"],
+              "path": ["books"]
+            },
+            "description": "Add a new book (admin only)"
+          }
+        },
+        {
+          "name": "Update Book (Admin)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n\t\"price\": 14.99,\n\t\"stockQuantity\": 75\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/books/{{book_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["books", "{{book_id}}"]
+            },
+            "description": "Update book information (admin only)"
+          }
+        },
+        {
+          "name": "Delete Book (Admin)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/books/{{book_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["books", "{{book_id}}"]
+            },
+            "description": "Delete a book (admin only)"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Reviews",
+      "description": "Book review management",
+      "item": [
+        {
+          "name": "Add Review",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n\t\"rating\": 5,\n\t\"comment\": \"This book was amazing! Highly recommend it.\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/books/{{book_id}}/reviews",
+              "host": ["{{base_url}}"],
+              "path": ["books", "{{book_id}}", "reviews"]
+            },
+            "description": "Add a review for a book"
+          }
+        },
+        {
+          "name": "Get Book Reviews",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/books/{{book_id}}/reviews",
+              "host": ["{{base_url}}"],
+              "path": ["books", "{{book_id}}", "reviews"]
+            },
+            "description": "Get all reviews for a book"
+          }
+        },
+        {
+          "name": "Delete Review",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/reviews/{{review_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["reviews", "{{review_id}}"]
+            },
+            "description": "Delete a review (owner or admin only)"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Orders",
+      "description": "Order management",
+      "item": [
+        {
+          "name": "Place Order",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              },
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n\t\"items\": [\n\t\t{\n\t\t\t\"bookId\": \"{{book_id}}\",\n\t\t\t\"quantity\": 2\n\t\t}\n\t],\n\t\"shippingAddress\": \"123 Main St, Anytown, USA\",\n\t\"contactNumber\": \"+1234567890\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/orders",
+              "host": ["{{base_url}}"],
+              "path": ["orders"]
+            },
+            "description": "Place a new order"
+          }
+        },
+        {
+          "name": "Get All Orders",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              },
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/orders",
+              "host": ["{{base_url}}"],
+              "path": ["orders"]
+            },
+            "description": "Get all orders for the current user"
+          }
+        },
+        {
+          "name": "Get Order by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              },
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/orders/{{order_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["orders", "{{order_id}}"]
+            },
+            "description": "Get details of a specific order"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Payments",
+      "description": "Payment processing",
+      "item": [
+        {
+          "name": "Create Payment",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              },
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n\t\"orderId\": \"{{order_id}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/payments/create",
+              "host": ["{{base_url}}"],
+              "path": ["payments", "create"]
+            },
+            "description": "Create a Razorpay payment order"
+          }
+        },
+        {
+          "name": "Verify Payment",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              },
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n\t\"razorpay_order_id\": \"{{razorpay_order_id}}\",\n\t\"razorpay_payment_id\": \"{{razorpay_payment_id}}\",\n\t\"razorpay_signature\": \"{{razorpay_signature}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/payments/verify",
+              "host": ["{{base_url}}"],
+              "path": ["payments", "verify"]
+            },
+            "description": "Verify a Razorpay payment"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Cart",
+      "description": "Shopping cart management",
+      "item": [
+        {
+          "name": "Get Cart",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/cart",
+              "host": ["{{base_url}}"],
+              "path": ["cart"]
+            },
+            "description": "Get the current user's shopping cart"
+          }
+        },
+        {
+          "name": "Add to Cart",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n\t\"bookId\": \"{{book_id}}\",\n\t\"quantity\": 1\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/cart",
+              "host": ["{{base_url}}"],
+              "path": ["cart"]
+            },
+            "description": "Add a book to the shopping cart"
+          }
+        },
+        {
+          "name": "Update Cart Item",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n\t\"quantity\": 3\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/cart/{{cart_item_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["cart", "{{cart_item_id}}"]
+            },
+            "description": "Update the quantity of a cart item"
+          }
+        },
+        {
+          "name": "Remove from Cart",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/cart/{{cart_item_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["cart", "{{cart_item_id}}"]
+            },
+            "description": "Remove an item from the shopping cart"
+          }
+        },
+        {
+          "name": "Clear Cart",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/cart",
+              "host": ["{{base_url}}"],
+              "path": ["cart"]
+            },
+            "description": "Clear all items from the shopping cart"
+          }
+        }
+      ]
+    }
+  ],
+  "event": [],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "https://bookbazaar-api.onrender.com",
+      "type": "string",
+      "description": "Base URL of the API. Use http://localhost:5000 for local development or your Render URL for production."
+    },
+    {
+      "key": "auth_token",
+      "value": "YOUR_JWT_TOKEN_HERE",
+      "type": "string"
+    },
+    {
+      "key": "api_key",
+      "value": "YOUR_API_KEY_HERE",
+      "type": "string"
+    },
+    {
+      "key": "book_id",
+      "value": "BOOK_UUID_HERE",
+      "type": "string"
+    },
+    {
+      "key": "order_id",
+      "value": "ORDER_UUID_HERE",
+      "type": "string"
+    },
+    {
+      "key": "review_id",
+      "value": "REVIEW_UUID_HERE",
+      "type": "string"
+    },
+    {
+      "key": "cart_item_id",
+      "value": "CART_ITEM_UUID_HERE",
+      "type": "string"
+    }
+  ]
+}

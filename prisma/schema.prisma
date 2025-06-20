@@ -1,0 +1,135 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String           @id @default(uuid()) @db.Uuid
+  name      String           @db.VarChar(255)
+  email     String           @unique @db.VarChar(255)
+  password  String           @db.VarChar(255)
+  role      enum_Users_role? @default(user)
+  createdAt DateTime?        @db.Timestamptz(6)
+  updatedAt DateTime?        @updatedAt @db.Timestamptz(6)
+  apiKeys   ApiKey[]
+  cartItems CartItem[]
+  orders    Order[]
+  reviews   Review[]
+
+  @@map("Users")
+}
+
+model ApiKey {
+  id        String    @id @default(uuid()) @db.Uuid
+  key       String    @unique @db.VarChar(255)
+  userId    String    @db.Uuid
+  isActive  Boolean?  @default(true)
+  expiresAt DateTime? @db.Timestamptz(6)
+  createdAt DateTime? @db.Timestamptz(6)
+  updatedAt DateTime? @updatedAt @db.Timestamptz(6)
+  user      User      @relation(fields: [userId], references: [id], onDelete: NoAction)
+
+  @@map("ApiKeys")
+}
+
+model Book {
+  id            String      @id @default(uuid()) @db.Uuid
+  title         String      @db.VarChar(255)
+  author        String      @db.VarChar(255)
+  description   String?
+  isbn          String?     @unique @db.VarChar(255)
+  price         Decimal     @db.Decimal(10, 2)
+  genre         String?     @db.VarChar(255)
+  publisher     String?     @db.VarChar(255)
+  publishedDate DateTime?   @db.Timestamptz(6)
+  stockQuantity Int         @default(0)
+  imageUrl      String?     @db.VarChar(255)
+  createdAt     DateTime?   @db.Timestamptz(6)
+  updatedAt     DateTime?   @updatedAt @db.Timestamptz(6)
+  cartItems     CartItem[]
+  orderItems    OrderItem[]
+  reviews       Review[]
+
+  @@map("Books")
+}
+
+model Review {
+  id        String    @id @default(uuid()) @db.Uuid
+  userId    String    @db.Uuid
+  bookId    String    @db.Uuid
+  rating    Int
+  comment   String?
+  createdAt DateTime? @db.Timestamptz(6)
+  updatedAt DateTime? @updatedAt @db.Timestamptz(6)
+  book      Book      @relation(fields: [bookId], references: [id], onDelete: NoAction)
+  user      User      @relation(fields: [userId], references: [id], onDelete: NoAction)
+
+  @@map("Reviews")
+}
+
+model Order {
+  id              String                     @id @default(uuid()) @db.Uuid
+  userId          String                     @db.Uuid
+  totalAmount     Decimal                    @db.Decimal(10, 2)
+  status          enum_Orders_status?        @default(pending)
+  paymentStatus   enum_Orders_paymentStatus? @default(pending)
+  paymentId       String?                    @db.VarChar(255)
+  shippingAddress String
+  contactNumber   String                     @db.VarChar(255)
+  createdAt       DateTime?                  @db.Timestamptz(6)
+  updatedAt       DateTime?                  @updatedAt @db.Timestamptz(6)
+  orderItems      OrderItem[]
+  user            User                       @relation(fields: [userId], references: [id], onDelete: NoAction)
+
+  @@map("Orders")
+}
+
+model OrderItem {
+  id        String   @id @default(uuid()) @db.Uuid
+  orderId   String   @db.Uuid
+  bookId    String   @db.Uuid
+  quantity  Int      @default(1)
+  price     Decimal  @db.Decimal(10, 2)
+  createdAt DateTime @db.Timestamptz(6)
+  updatedAt DateTime @db.Timestamptz(6)
+  book      Book     @relation(fields: [bookId], references: [id], onDelete: NoAction)
+  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@map("OrderItems")
+}
+
+model CartItem {
+  id        String    @id @default(uuid()) @db.Uuid
+  userId    String    @db.Uuid
+  bookId    String    @db.Uuid
+  quantity  Int       @default(1)
+  createdAt DateTime? @db.Timestamptz(6)
+  updatedAt DateTime? @updatedAt @db.Timestamptz(6)
+  book      Book      @relation(fields: [bookId], references: [id], onDelete: NoAction)
+  user      User      @relation(fields: [userId], references: [id], onDelete: NoAction)
+
+  @@map("CartItems")
+}
+
+enum enum_Orders_paymentStatus {
+  pending
+  completed
+  failed
+}
+
+enum enum_Orders_status {
+  pending
+  processing
+  shipped
+  delivered
+  cancelled
+}
+
+enum enum_Users_role {
+  user
+  admin
+}
